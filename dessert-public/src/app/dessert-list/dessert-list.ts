@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { DessertDataService } from '../dessert-data';
 
 export class Dessert {
@@ -15,6 +15,7 @@ export class Dessert {
     description: string;
   }>;
   steps!: string[];
+  reviews!: any[];
 }
 
 @Component({
@@ -23,33 +24,40 @@ export class Dessert {
   styleUrls: ['./dessert-list.css'],
   standalone: false
 })
-export class DessertList implements OnInit {
+export class DessertListComponent implements OnInit {
   desserts: Dessert[] = [];
 
-  constructor(private dessertDataService: DessertDataService) { }
+  constructor(
+    private dessertDataService: DessertDataService,
+    private cdRef: ChangeDetectorRef
+  ) {}
 
   private getDesserts(): void {
-    console.log('getDesserts() called');
-  
-  this.dessertDataService
-    .getDesserts()
-    .then((foundDesserts: Dessert[]) => {
-      console.log('Got desserts:', foundDesserts);
-      console.log('Number of desserts:', foundDesserts.length);
-      if (foundDesserts.length > 0) {
-        console.log('First dessert:', foundDesserts[0]);
-        console.log('First dessert keys:', Object.keys(foundDesserts[0]));
-      }
-      this.desserts = foundDesserts;
-    })
-    .catch((error: any) => {
-      console.error('Error fetching desserts:', error);
-      this.desserts = [];
-    });
+    this.dessertDataService
+      .getDesserts()
+      .then((foundDesserts: Dessert[]) => {
+        this.desserts = foundDesserts.map(dessert => ({
+          ...dessert,
+          image: this.getFullImageUrl(dessert.image)
+        }));
+        this.cdRef.detectChanges();
+      })
+      .catch((error: any) => {
+        console.error('Error:', error);
+        this.desserts = [];
+        this.cdRef.detectChanges();
+      });
+  }
+
+  private getFullImageUrl(imagePath: string): string {
+    if (imagePath.startsWith('http')) {
+      return imagePath;
+    }
+    return `http://localhost:3000${imagePath}`;
   }
 
   ngOnInit() {
-    this.getDesserts();  // Call on initialization
+    this.getDesserts();
   }
 
   getStars(rating: number): number[] {
