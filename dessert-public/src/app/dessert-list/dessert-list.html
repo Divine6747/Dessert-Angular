@@ -12,16 +12,15 @@
                                 <h4>
                                     <strong>Rating: {{dessert.ratingText}} ({{dessert.reviewCount}} reviews)</strong>
                                 </h4>
-                                <div>
-                                    @for (star of getStars(dessert.rating); track star) {
-                                        <i class="fa fa-star text-warning"></i>
-                                    }
-                                    @for (star of getEmptyStars(dessert.rating); track star) {
-                                        <i class="fa fa-star-o text-warning"></i>
-                                    }
-                                </div>
+                               <div>
+                                @for (star of getStars(dessert.rating); track $index) {
+                                  <i class="fas fa-star text-warning"></i>      <!-- or fa-solid -->
+                                }
+                                @for (star of getEmptyStars(dessert.rating); track $index) {
+                                  <i class="far fa-star text-warning"></i>      <!-- or fa-regular -->
+                                }
+                              </div>
                             </div>
-
                             <h3>Ingredients</h3>
                             <ul>
                                 @for (item of dessert.ingredients; track item._id) {
